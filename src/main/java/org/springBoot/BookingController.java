@@ -27,12 +27,11 @@ public class BookingController {
 
     // 5.c get available room
     @GetMapping("/{roomNumber}/available")
-    public List<Booking> getAvailableBooking(@PathVariable int roomWanted, @RequestParam LocalDate requestDate) {
+    public List<Booking> getAvailableBooking(@PathVariable int roomNumber, @RequestParam LocalDate requestDate) {
         LocalDate requestedDate = LocalDate.parse(requestDate.toString());
 
-        Boolean isAvailable = bookingList.stream()
-                .filter(booking -> booking.roomNumber() == roomWanted)
-                .anyMatch(booking -> booking.date() != null && booking.date().equals(requestDate));
+        boolean isAvailable = bookingList.stream()
+                .anyMatch(booking -> booking.roomNumber() == roomNumber && booking.date().isEqual(requestedDate));
 
         if (isAvailable) {
             return (List<Booking>) ResponseEntity.status(409).body("room already reserved");
@@ -40,4 +39,7 @@ public class BookingController {
             return (List<Booking>) ResponseEntity.ok("room available");
         }
     }
+
+    // 5.d
+
 }
