@@ -1,11 +1,9 @@
 package org.springBoot;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,5 +23,21 @@ public class BookingController {
     public ResponseEntity<List<Booking>> createBooking(@RequestParam Booking booking) {
         bookingList.add(booking);
         return ResponseEntity.ok(bookingList);
+    }
+
+    // 5.c get available room
+    @GetMapping("/{roomNumber}/available")
+    public List<Booking> getAvailableBooking(@PathVariable int roomWanted, @RequestParam LocalDate requestDate) {
+        LocalDate requestedDate = LocalDate.parse(requestDate.toString());
+
+        Boolean isAvailable = bookingList.stream()
+                .filter(booking -> booking.roomNumber() == roomWanted)
+                .anyMatch(booking -> booking.date() != null && booking.date().equals(requestDate));
+
+        if (isAvailable) {
+            return (List<Booking>) ResponseEntity.status(409).body("room already reserved");
+        } else  {
+            return (List<Booking>) ResponseEntity.ok("room available");
+        }
     }
 }
